@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15-alpine
+    container_name: realtor-db-dev
+    environment:
+      POSTGRES_DB: real_estate_aggregator_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-realestate123}
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - realtor-dev-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: realtor-redis-dev
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - realtor-dev-network
+    restart: unless-stopped
+
+  backend-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: realtor-backend-dev
+    environment:
+      NODE_ENV: development
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: real_estate_aggregator_dev
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-realestate123}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key}
+      FRONTEND_URL: http://localhost:3000
+      PORT: 3001
+      AUTO_START_SCHEDULER: "false"
+      LOG_LEVEL: debug
+    volumes:
+      - ./backend:/app
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+    networks:
+      - realtor-dev-network
+    depends_on:
+      - database
+    restart: unless-stopped
+    command: npm run dev
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  realtor-dev-network:
+    driver: bridge

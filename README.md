@@ -46,14 +46,50 @@ A comprehensive real estate listing aggregator that scrapes multiple real estate
 - **Scheduling**: Node-cron
 - **Deployment**: Docker
 
-## Getting Started
+## Quick Start
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Set up PostgreSQL database
-4. Configure environment variables
-5. Run migrations: `npm run migrate`
-6. Start development server: `npm run dev`
+### Development
+```bash
+# Complete setup
+make dev-setup
+
+# Start backend services
+make dev
+
+# Start frontend (separate terminal)
+cd frontend && npm run dev
+```
+
+### Production
+```bash
+# Deploy everything
+make deploy
+
+# Access: http://localhost
+```
+
+## Detailed Setup
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete deployment guide.
+
+### Manual Setup
+
+1. **Install dependencies**:
+   ```bash
+   make install
+   ```
+
+2. **Set up environment**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+3. **Start with Docker**:
+   ```bash
+   make dev  # Development
+   make start  # Production
+   ```
 
 ## Legal & Compliance
 
